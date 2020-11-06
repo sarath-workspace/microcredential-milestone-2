@@ -1,0 +1,138 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  add-user
+
+  Sample SAM Template for add-user
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 20
+
+Resources:
+  addUser:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: helloworld.App::handleRequest
+      Runtime: java8
+      MemorySize: 512
+      Environment:
+        Variables:
+          PARAM1: VALUE
+      Events:
+        HelloWorld:
+          Type: Api
+          Models:
+            User:
+              type: object
+              required:
+                - firstName
+                - lastName
+                - dateOfBirth
+                - email
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                dateOfBirth:
+                  type: string
+                email:
+                  type: string
+          Properties:
+            Path: /api/user/add
+            Method: post
+  updateUser:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: com.cognizant.microocredential.userservice.update.UpdateUserApplication::handleRequest
+      Runtime: java8
+      MemorySize: 512
+      Events:
+        HelloWorld:
+          Type: Api
+          Models:
+            User:
+              type: object
+              required:
+                - firstName
+                - lastName
+                - dateOfBirth
+                - email
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                dateOfBirth:
+                  type: string
+                email:
+                  type: string
+          Properties:
+            Path: /api/user/update/{id}
+            Method: post
+  getUser:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: com.cognizant.microocredential.userservice.get.GetUserApplication::handleRequest
+      Runtime: java8
+      MemorySize: 512
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /api/user/view
+            Method: get
+  emailOTPService:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: com.cognizant.microcredential.emailotpservice.EmailOTPServiceApplication::handleRequest
+      Runtime: java8
+      MemorySize: 512
+      Environment:
+        Variables:
+          MAIL_FROM_ADDRESS: sarath.r93@gmail.com
+      Events:
+        HelloWorld:
+          Type: Api
+          Models:
+            MailInfo:
+              type: object
+              required:
+                - to
+                - message
+                - subject
+              properties:
+                to:
+                  type: array
+                cc:
+                  type: array
+                bcc:
+                  type: array
+                message:
+                  type: string
+                subject:
+                  type: string
+          Properties:
+            Path: /api/email/otp
+            Method: post
+
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  HelloWorldApi:
+    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
+  HelloWorldFunction:
+    Description: "Hello World Lambda Function ARN"
+    Value: !GetAtt HelloWorldFunction.Arn
+  HelloWorldFunctionIamRole:
+    Description: "Implicit IAM Role created for Hello World function"
+    Value: !GetAtt HelloWorldFunctionRole.Arn

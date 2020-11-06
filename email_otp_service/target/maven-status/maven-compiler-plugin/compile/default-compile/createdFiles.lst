@@ -1,0 +1,4 @@
+com\cognizant\microcredential\emailotpservice\model\MailResponse$Builder.class
+com\cognizant\microcredential\emailotpservice\EmailOTPServiceApplication.class
+com\cognizant\microcredential\emailotpservice\model\MailResponse.class
+com\cognizant\microcredential\emailotpservice\model\MailInfo.class

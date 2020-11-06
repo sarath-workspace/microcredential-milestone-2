@@ -1,0 +1,156 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'add-user
+
+  SAM Template for Online-Order CheckoutService microservice
+
+  '
+Globals:
+  Function:
+    Timeout: 500
+    Environment:
+      Variables:
+        RDS_HOSTNAME: lambdamysqltest.cozj6n90r6j0.ap-south-1.rds.amazonaws.com:3006
+        RDS_DB_NAME: online_order
+        RDS_USERNAME: master
+        RDS_PASSWORD: master123
+Resources:
+  getCheckout:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://microcredential-serverless-api/6620abb160d27d5eafa48f36b953c336
+      FunctionName: OnlineOrderGetCheckout
+      Description: 'Online-Order Get Checkout service is to get the checkout details
+
+        '
+      Handler: com.cognizant.microcredential.checkoutservice.GetCheckoutApplication::handleRequest
+      Runtime: java8
+      MemorySize: 512
+      Policies:
+      - Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+          - lambda:InvokeFunction
+          - logs:CreateLogGroup
+          - logs:CreateLogStream
+          - logs:PutLogEvents
+          Resource: '*'
+      Environment:
+        Variables:
+          GET_ORDER_DETAILS_SERVICE: OnlineOrderGetOrder
+          GET_USER_DETAILS_SERVICE: OnlineOrderGetUser
+          GET_PRODUCT_DETAILS_SERVICE: OnlineOrderGetProduct
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /api/checkout/view/{id}
+            Method: get
+  addCheckout:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://microcredential-serverless-api/6620abb160d27d5eafa48f36b953c336
+      FunctionName: OnlineOrderCheckoutOrder
+      Description: 'Online-Order Checkout service is to checkout a order for a user
+
+        '
+      Handler: com.cognizant.microcredential.checkoutservice.CheckoutApplication::handleRequest
+      Runtime: java8
+      MemorySize: 512
+      Policies:
+      - Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+          - lambda:InvokeFunction
+          - logs:CreateLogGroup
+          - logs:CreateLogStream
+          - logs:PutLogEvents
+          Resource: '*'
+      Environment:
+        Variables:
+          GET_ORDER_DETAILS_SERVICE: OnlineOrderGetOrder
+          GET_PRODUCT_DETAILS_SERVICE: OnlineOrderGetProduct
+          GET_USER_DETAILS_SERVICE: OnlineOrderGetUser
+          OTP_SERVICE: OnlineOrderOTPService
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /api/checkout/checkout/{id}
+            Method: post
+  confirmCheckout:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://microcredential-serverless-api/6620abb160d27d5eafa48f36b953c336
+      FunctionName: OnlineOrderConfirmCheckout
+      Description: 'Online-Order Confirm Checkout service is to confirm a Checkout
+        order with OTP
+
+        '
+      Handler: com.cognizant.microcredential.checkoutservice.OTPVerificationApplication::handleRequest
+      Runtime: java8
+      MemorySize: 512
+      Policies:
+      - Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+          - lambda:InvokeFunction
+          - logs:CreateLogGroup
+          - logs:CreateLogStream
+          - logs:PutLogEvents
+          Resource: '*'
+      Environment:
+        Variables:
+          GET_USER_DETAILS_SERVICE: OnlineOrderGetUser
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /api/checkout/confirm
+            Method: post
+Outputs:
+  CheckoutServiceApi:
+    Description: API Gateway endpoint URL for Prod stage OnlineOrder::CheckoutService
+    Value:
+      Fn::Sub: "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/api/checkout/view/{id}\n\
+        \ https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/api/checkout/checkout/{id}\n\
+        \ https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/api/checkout/confirm"
+  CheckoutServiceGetCheckoutFunction:
+    Description: Checkout Service GetCheckout Lambda Functions ARN
+    Value:
+      Fn::GetAtt:
+      - confirmCheckout
+      - Arn
+  CheckoutServiceUpdateCheckoutFunction:
+    Description: Checkout Service Checkout Lambda Functions ARN
+    Value:
+      Fn::GetAtt:
+      - addCheckout
+      - Arn
+  CheckoutServiceAddCheckoutFunction:
+    Description: Checkout Service Confirm Checkout Lambda Functions ARN
+    Value:
+      Fn::GetAtt:
+      - getCheckout
+      - Arn
+  CheckoutServiceGetCheckoutFunctionIamRole:
+    Description: Implicit IAM Role created for Checkout Service Confirm Checkout functions
+    Value:
+      Fn::GetAtt:
+      - confirmCheckoutRole
+      - Arn
+  CheckoutServiceUpdateCheckoutFunctionIamRole:
+    Description: Implicit IAM Role created for Checkout Service Checkout functions
+    Value:
+      Fn::GetAtt:
+      - addCheckoutRole
+      - Arn
+  CheckoutServiceAddCheckoutFunctionIamRole:
+    Description: Implicit IAM Role created for Checkout Service GetCheckout functions
+    Value:
+      Fn::GetAtt:
+      - getCheckoutRole
+      - Arn

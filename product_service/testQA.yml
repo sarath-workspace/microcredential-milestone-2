@@ -1,0 +1,131 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'Product Service
+
+  SAM Template for Online-Order productService microservice
+
+  '
+Globals:
+  Function:
+    Timeout: 20
+    Environment:
+      Variables:
+        RDS_HOSTNAME: lambdamysqltest.cozj6n90r6j0.ap-south-1.rds.amazonaws.com:3006
+        RDS_DB_NAME: online_order
+        RDS_USERNAME: master
+        RDS_PASSWORD: master123
+Resources:
+  getProduct:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://microcredential-serverless-api/be45e2cf1867cc550b5b5be227dca6a5
+      FunctionName: OnlineOrderGetProduct
+      Description: 'Online-Order Get Product service is to get the Product details
+
+        '
+      Handler: com.cognizant.microcredential.productservice.GetProductApplication::handleRequest
+      Runtime: java8
+      MemorySize: 512
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /api/product/view
+            Method: get
+  addProduct:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://microcredential-serverless-api/be45e2cf1867cc550b5b5be227dca6a5
+      FunctionName: OnlineOrderAddProduct
+      Description: 'Online-Order Add Product service is to add new product details
+
+        '
+      Handler: com.cognizant.microcredential.productservice.AddProductApplication::handleRequest
+      Runtime: java8
+      MemorySize: 512
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /api/product/add
+            Method: post
+  updateProduct:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://microcredential-serverless-api/be45e2cf1867cc550b5b5be227dca6a5
+      FunctionName: OnlineOrderUpdateProduct
+      Description: 'Online-Order Update Product service is to update the existing
+        product details
+
+        '
+      Handler: com.cognizant.microcredential.productservice.UpdateProductApplication::handleRequest
+      Runtime: java8
+      MemorySize: 512
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /api/product/update/{id}
+            Method: put
+  deletProduct:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://microcredential-serverless-api/be45e2cf1867cc550b5b5be227dca6a5
+      FunctionName: OnlineOrderDeleteProduct
+      Description: 'Online-Order Update Product service is to update the existing
+        product details
+
+        '
+      Handler: com.cognizant.microcredential.productservice.DeleteProductApplication::handleRequest
+      Runtime: java8
+      MemorySize: 512
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /api/product/delete
+            Method: delete
+Outputs:
+  ProductServiceApi:
+    Description: API Gateway endpoint URL for Prod stage OnlineOrder::productService
+    Value:
+      Fn::Sub: "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/api/product/view?id={id}\n\
+        \ https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/api/product/update/{id}\n\
+        \ https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/api/product/add\n\
+        \ https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/api/product/delete?id={id}"
+  ProductServiceGetProductFunction:
+    Description: Product Service GetProduct Lambda Functions ARN
+    Value:
+      Fn::GetAtt:
+      - getProduct
+      - Arn
+  ProductServiceUpdateProductFunction:
+    Description: Product Service UpdateProduct Lambda Functions ARN
+    Value:
+      Fn::GetAtt:
+      - updateProduct
+      - Arn
+  ProductServiceAddProductFunction:
+    Description: Product Service AddProduct Lambda Functions ARN
+    Value:
+      Fn::GetAtt:
+      - addProduct
+      - Arn
+  ProductServiceGetProductFunctionIamRole:
+    Description: Implicit IAM Role created for Product Service GetProduct functions
+    Value:
+      Fn::GetAtt:
+      - getProductRole
+      - Arn
+  ProductServiceUpdateProductFunctionIamRole:
+    Description: Implicit IAM Role created for Product Service UpdateProduct functions
+    Value:
+      Fn::GetAtt:
+      - updateProductRole
+      - Arn
+  ProductServiceAddProductFunctionIamRole:
+    Description: Implicit IAM Role created for Product Service AddProduct functions
+    Value:
+      Fn::GetAtt:
+      - addProductRole
+      - Arn

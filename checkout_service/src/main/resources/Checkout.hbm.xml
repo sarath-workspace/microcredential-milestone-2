@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 5.3//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-5.3.dtd">
+
+<hibernate-mapping>
+    <class name="com.cognizant.microcredential.checkoutservice.model.Checkout" table="checkout">
+        <composite-id>
+            <key-property name="userid" type="long" column="userid" />
+            <key-property name="code" type="string" column="code" />
+            <key-property name="productId" type="long" column="productId" />
+        </composite-id>
+        <property name="productName" column="productName" type="string" />
+        <property name="quantity" column="quantity" type="int" />
+        <property name="price" column="price" type="double" />
+        <property name="offer" column="offer" type="double" />
+    </class>
+</hibernate-mapping>

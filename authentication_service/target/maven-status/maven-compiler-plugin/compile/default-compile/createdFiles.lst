@@ -1,0 +1,10 @@
+com\cognizant\microcredential\authenticationservice\utils\CognitoUtil.class
+com\cognizant\microcredential\authenticationservice\model\UserDetails.class
+com\cognizant\microcredential\authenticationservice\model\ChangepasswordRequest.class
+com\cognizant\microcredential\authenticationservice\ChangePasswordServiceApplication.class
+com\cognizant\microcredential\authenticationservice\model\User.class
+com\cognizant\microcredential\authenticationservice\SignUpServiceApplication.class
+com\cognizant\microcredential\authenticationservice\UserInfoServiceApplication.class
+com\cognizant\microcredential\authenticationservice\model\SignUpRequest.class
+com\cognizant\microcredential\authenticationservice\model\AuthenticationRequest.class
+com\cognizant\microcredential\authenticationservice\SignInServiceApplication.class

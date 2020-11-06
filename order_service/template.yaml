@@ -1,0 +1,125 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Order Service
+
+  SAM Template for Online-Order orderService microservice
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 500
+    Environment:
+      Variables:
+        RDS_HOSTNAME: lambdamysqltest.cozj6n90r6j0.ap-south-1.rds.amazonaws.com:3006
+        RDS_DB_NAME: online_order
+        RDS_USERNAME: master
+        RDS_PASSWORD: master123
+        APP_ACCESS_CODE: AKIAJTQ6EFAMPLCMHHOA
+        APP_SECRET_CODE: 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
+
+Resources:
+  getOrder:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      FunctionName: OnlineOrderGetOrder
+      Description: >
+        Online-Order Get Order service is to get the Order details
+      Handler: com.cognizant.microcredential.orderservice.GetOrderApplication::handleRequest
+      Runtime: java8
+      MemorySize: 512
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /api/order/view/{userid}
+            Method: get
+  addOrder:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      FunctionName: OnlineOrderAddOrder
+      Description: >
+        Online-Order Add Order service is to add new order details
+      Handler: com.cognizant.microcredential.orderservice.AddOrderApplication::handleRequest
+      Runtime: java8
+      MemorySize: 512
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - 'lambda:InvokeFunction'
+                - 'logs:CreateLogGroup'
+                - 'logs:CreateLogStream'
+                - 'logs:PutLogEvents'
+              Resource: '*'
+      Environment:
+        Variables:
+          GET_USER_SERVICE: OnlineOrderGetUser
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /api/order/add
+            Method: post
+  updateOrder:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      FunctionName: OnlineOrderUpdateOrder
+      Description: >
+        Online-Order Update Order service is to update the existing order details
+      Handler: com.cognizant.microcredential.orderservice.UpdateOrderApplication::handleRequest
+      Runtime: java8
+      MemorySize: 512
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /api/order/update/{userid}/{productid}
+            Method: put
+  deletOrder:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      FunctionName: OnlineOrderDeleteOrder
+      Description: >
+        Online-Order Update Order service is to delete the existing order details
+      Handler: com.cognizant.microcredential.orderservice.DeleteOrderApplication::handleRequest
+      Runtime: java8
+      MemorySize: 512
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /api/order/delete/{userid}/{productid}
+            Method: delete
+
+
+Outputs:
+  OrderServiceApi:
+    Description: "API Gateway endpoint URL for Prod stage OnlineOrder::orderService"
+    Value: !Sub "\nhttps://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/api/order/view/{userid}\n
+      \nhttps://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/api/order/update/{userid}/{productid}\n
+      \nhttps://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/api/order/add\n
+      \nhttps://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/api/order/delete/{userid}/{productid}"
+  OrderServiceGetOrderFunction:
+    Description: "Order Service GetOrder Lambda Functions ARN"
+    Value: !GetAtt getOrder.Arn
+  OrderServiceUpdateOrderFunction:
+    Description: "Order Service UpdateOrder Lambda Functions ARN"
+    Value: !GetAtt updateOrder.Arn
+  OrderServiceAddOrderFunction:
+    Description: "Order Service AddOrder Lambda Functions ARN"
+    Value: !GetAtt addOrder.Arn
+  OrderServiceGetOrderFunctionIamRole:
+    Description: "Implicit IAM Role created for Order Service GetOrder functions"
+    Value: !GetAtt getOrderRole.Arn
+  OrderServiceUpdateOrderFunctionIamRole:
+    Description: "Implicit IAM Role created for Order Service UpdateOrder functions"
+    Value: !GetAtt updateOrderRole.Arn
+  OrderServiceAddOrderFunctionIamRole:
+    Description: "Implicit IAM Role created for Order Service AddOrder functions"
+    Value: !GetAtt addOrderRole.Arn

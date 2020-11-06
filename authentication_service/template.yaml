@@ -1,0 +1,121 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  add-user
+
+  SAM Template for Online-Order CheckoutService microservice
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 500
+    Environment:
+      Variables:
+        USER_POOL_ID: !Ref MyCognitoUserPool
+        REGION: !Ref AWS::Region
+
+Resources:
+  MyCognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: sam_api_gateway_cup_auth_cognito_user_pool
+      LambdaConfig:
+        PreSignUp: !GetAtt PreSignupLambdaFunction.Arn
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+      UsernameAttributes:
+        - email
+      Schema:
+        - AttributeDataType: String
+          Name: email
+          Required: false
+
+  CognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: sam_api_gateway_cup_auth_cognito_client
+      UserPoolId: !Ref MyCognitoUserPool
+
+  PreSignupLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      InlineCode: |
+        exports.handler = async (event, context, callback) => {
+          event.response = { autoConfirmUser: true }
+          return event
+        }
+      Handler: index.handler
+      MemorySize: 128
+      Runtime: nodejs12.x
+      Timeout: 30
+
+  LambdaCognitoUserPoolExecutionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt PreSignupLambdaFunction.Arn
+      Principal: cognito-idp.amazonaws.com
+      SourceArn: !Sub 'arn:${AWS::Partition}:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${MyCognitoUserPool}'
+
+  signupService:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      FunctionName: OnlineOrderGetCheckout
+      Description: >
+        Online-Order Get Checkout service is to get the checkout details
+      Handler: com.cognizant.microcredential.authenticationservice.SignUpServiceApplication::handleRequest
+      Runtime: java8
+      MemorySize: 512
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - 'lambda:InvokeFunction'
+                - 'logs:CreateLogGroup'
+                - 'logs:CreateLogStream'
+                - 'logs:PutLogEvents'
+              Resource: '*'
+      Environment:
+        Variables:
+          ADD_USER_FUNCTION_NAME: OnlineOrderAddUser
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /api/checkout/view/{id}
+            Method: get
+
+
+Outputs:
+  CheckoutServiceApi:
+    Description: "API Gateway endpoint URL for Prod stage OnlineOrder::CheckoutService"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/api/checkout/view/{id}\n
+      https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/api/checkout/checkout/{id}\n
+      https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/api/checkout/confirm"
+  CheckoutServiceGetCheckoutFunction:
+    Description: "Checkout Service GetCheckout Lambda Functions ARN"
+    Value: !GetAtt confirmCheckout.Arn
+  CheckoutServiceUpdateCheckoutFunction:
+    Description: "Checkout Service Checkout Lambda Functions ARN"
+    Value: !GetAtt addCheckout.Arn
+  CheckoutServiceAddCheckoutFunction:
+    Description: "Checkout Service Confirm Checkout Lambda Functions ARN"
+    Value: !GetAtt getCheckout.Arn
+  CheckoutServiceGetCheckoutFunctionIamRole:
+    Description: "Implicit IAM Role created for Checkout Service Confirm Checkout functions"
+    Value: !GetAtt confirmCheckoutRole.Arn
+  CheckoutServiceUpdateCheckoutFunctionIamRole:
+    Description: "Implicit IAM Role created for Checkout Service Checkout functions"
+    Value: !GetAtt addCheckoutRole.Arn
+  CheckoutServiceAddCheckoutFunctionIamRole:
+    Description: "Implicit IAM Role created for Checkout Service GetCheckout functions"
+    Value: !GetAtt getCheckoutRole.Arn
+  CognitoUserPoolId:
+    Description: "Cognito User Pool Id"
+    Value: !Ref MyCognitoUserPool
+  CognitoUserPoolClientId:
+    Description: "Cognito User Pool Client Id"
+    Value: !Ref CognitoUserPoolClient

@@ -1,0 +1,41 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'add-user
+
+  Sample SAM Template for add-user
+
+  '
+Globals:
+  Function:
+    Timeout: 20
+Resources:
+  getUser:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://microcredential-serverless-api/5caf3d17eee700127b380655dc8bb8c3
+      Handler: com.cognizant.microocredential.userservice.get.GetUserApplication::handleRequest
+      Runtime: java8
+      MemorySize: 512
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /api/user/view/{id}
+            Method: get
+Outputs:
+  HelloWorldApi:
+    Description: API Gateway endpoint URL for Prod stage for Hello World function
+    Value:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/api/user/view/{id}
+  HelloWorldFunction:
+    Description: Hello World Lambda Function ARN
+    Value:
+      Fn::GetAtt:
+      - getUser
+      - Arn
+  HelloWorldFunctionIamRole:
+    Description: Implicit IAM Role created for Hello World function
+    Value:
+      Fn::GetAtt:
+      - getUserRole
+      - Arn

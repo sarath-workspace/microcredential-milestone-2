@@ -1,0 +1,6 @@
+com\cognizant\microocredential\userservice\get\model\User.class
+com\cognizant\microocredential\userservice\get\util\HibernateUtil.class
+com\cognizant\microocredential\userservice\get\exception\UserNotFound.class
+com\cognizant\microocredential\userservice\get\AddUserApplication.class
+com\cognizant\microocredential\userservice\get\GetUserApplication.class
+com\cognizant\microocredential\userservice\get\UpdateUserApplication.class

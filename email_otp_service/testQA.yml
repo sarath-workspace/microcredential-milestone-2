@@ -1,0 +1,71 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'add-user
+
+  Sample SAM Template for add-user
+
+  '
+Globals:
+  Function:
+    Timeout: 500
+Resources:
+  emailOTPService:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://microcredential-serverless-api/603820b8512ebd999560fc549ab0422c
+      FunctionName: OnlineOrderOTPService
+      Handler: com.cognizant.microcredential.emailotpservice.EmailOTPServiceApplication::handleRequest
+      Runtime: java8
+      MemorySize: 512
+      Policies:
+      - Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+          - ses:SendEmail
+          - ses:SendRawEmail
+          Resource: '*'
+      Environment:
+        Variables:
+          MAIL_FROM_ADDRESS: sarath.r93@gmail.com
+      Events:
+        HelloWorld:
+          Type: Api
+          Models:
+            MailInfo:
+              type: object
+              required:
+              - to
+              - message
+              - subject
+              properties:
+                to:
+                  type: array
+                cc:
+                  type: array
+                bcc:
+                  type: array
+                message:
+                  type: string
+                subject:
+                  type: string
+          Properties:
+            Path: /api/email/otp
+            Method: post
+Outputs:
+  HelloWorldApi:
+    Description: API Gateway endpoint URL for Prod stage for Hello World function
+    Value:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/api/email/otp
+  HelloWorldFunction:
+    Description: Hello World Lambda Function ARN
+    Value:
+      Fn::GetAtt:
+      - emailOTPService
+      - Arn
+  HelloWorldFunctionIamRole:
+    Description: Implicit IAM Role created for Hello World function
+    Value:
+      Fn::GetAtt:
+      - emailOTPService
+      - Arn

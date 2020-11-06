@@ -1,0 +1,7 @@
+com\cognizant\microcredential\productservice\util\HibernateUtil.class
+com\cognizant\microcredential\productservice\GetProductApplication.class
+com\cognizant\microcredential\productservice\exception\ProductNotFound.class
+com\cognizant\microcredential\productservice\model\Product.class
+com\cognizant\microcredential\productservice\DeleteProductApplication.class
+com\cognizant\microcredential\productservice\AddProductApplication.class
+com\cognizant\microcredential\productservice\UpdateProductApplication.class

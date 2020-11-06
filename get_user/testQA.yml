@@ -1,0 +1,122 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'add-user
+
+  SAM Template for Online-Order UserService microservice
+
+  '
+Globals:
+  Function:
+    Timeout: 500
+    Environment:
+      Variables:
+        RDS_HOSTNAME: lambdamysqltest.cozj6n90r6j0.ap-south-1.rds.amazonaws.com:3006
+        RDS_DB_NAME: online_order
+        RDS_USERNAME: master
+        RDS_PASSWORD: master123
+Resources:
+  getUser:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://microcredential-serverless-api/15bcd57d21846ef00d2f3f8959e89d46
+      FunctionName: OnlineOrderGetUser
+      Description: 'Online-Order Get User service is to get the user details
+
+        '
+      Handler: com.cognizant.microocredential.userservice.get.GetUserApplication::handleRequest
+      Runtime: java8
+      MemorySize: 512
+      Policies:
+      - Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+          - lambda:InvokeFunction
+          - logs:CreateLogGroup
+          - logs:CreateLogStream
+          - logs:PutLogEvents
+          Resource: '*'
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /api/user/view
+            Method: get
+  addUser:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://microcredential-serverless-api/15bcd57d21846ef00d2f3f8959e89d46
+      FunctionName: OnlineOrderAddUser
+      Description: 'Online-Order Add User service is to add new users details
+
+        '
+      Handler: com.cognizant.microocredential.userservice.get.AddUserApplication::handleRequest
+      Runtime: java8
+      MemorySize: 512
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /api/user/add
+            Method: post
+  updateUser:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://microcredential-serverless-api/15bcd57d21846ef00d2f3f8959e89d46
+      FunctionName: OnlineOrderUpdateUser
+      Description: 'Online-Order Update User service is to update the existing user
+        details
+
+        '
+      Handler: com.cognizant.microocredential.userservice.get.UpdateUserApplication::handleRequest
+      Runtime: java8
+      MemorySize: 512
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /api/user/update/{id}
+            Method: put
+Outputs:
+  UserServiceApi:
+    Description: API Gateway endpoint URL for Prod stage OnlineOrder::UserService
+    Value:
+      Fn::Sub: "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/api/user/view?id={id}\n\
+        \ https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/api/user/update/{id}\n\
+        \ https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/api/user/add/\n"
+  UserServiceGetUserFunction:
+    Description: User Service GetUser Lambda Functions ARN
+    Value:
+      Fn::GetAtt:
+      - getUser
+      - Arn
+  UserServiceUpdateUserFunction:
+    Description: User Service UpdateUser Lambda Functions ARN
+    Value:
+      Fn::GetAtt:
+      - updateUser
+      - Arn
+  UserServiceAddUserFunction:
+    Description: User Service AddUser Lambda Functions ARN
+    Value:
+      Fn::GetAtt:
+      - addUser
+      - Arn
+  UserServiceGetUserFunctionIamRole:
+    Description: Implicit IAM Role created for User Service GetUser functions
+    Value:
+      Fn::GetAtt:
+      - getUserRole
+      - Arn
+  UserServiceUpdateUserFunctionIamRole:
+    Description: Implicit IAM Role created for User Service UpdateUser functions
+    Value:
+      Fn::GetAtt:
+      - updateUserRole
+      - Arn
+  UserServiceAddUserFunctionIamRole:
+    Description: Implicit IAM Role created for User Service AddUser functions
+    Value:
+      Fn::GetAtt:
+      - addUserRole
+      - Arn
