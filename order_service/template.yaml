@@ -15,8 +15,8 @@ Globals:
         RDS_DB_NAME: online_order
         RDS_USERNAME: master
         RDS_PASSWORD: master123
-        APP_ACCESS_CODE: AKIAJTQ6EFAMPLCMHHOA
-        APP_SECRET_CODE: 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
+        APP_ACCESS_CODE: 
+        APP_SECRET_CODE: 
 
 Resources:
   getOrder:
